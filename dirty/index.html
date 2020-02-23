@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>JSON-API Data Administratif Indonesia.md</title>
+  <link rel="stylesheet" href="https://cdn.statically.io/gh/nyancodeid/cdn/303566d1/style-md.min.css">
+</head>
+
+<body id="preview">
+  <h1 class="code-line" data-line-start=0 data-line-end=1><a id="JSONAPI_Data_Administratif_Indonesia_0"></a>JSON-API
+    Data Administratif Indonesia</h1>
+  <p class="has-line-data" data-line-start="1" data-line-end="2">Hosting menggunakan Github Pages dan Cloudflare.
+    Berdasarkan data terbaru dari repository <a
+      href="https://github.com/ichadhr/db-wilayah-indonesia">github.com/ichadhr/db-wilayah-indonesia</a>.</p>
+  <h2 class="code-line" data-line-start=3 data-line-end=4><a id="cURL_3"></a>cURL</h2>
+  <pre><code class="has-line-data" data-line-start="5" data-line-end="7" class="language-shell">curl -v https://area.nyandev.id/provinsi.json
+</code></pre>
+  <h2 class="code-line" data-line-start=8 data-line-end=9><a id="Cara_Penggunaan_8"></a>Cara Penggunaan</h2>
+  <h3 class="code-line" data-line-start=9 data-line-end=10><a id="Provinsi_9"></a>Provinsi</h3>
+  <p class="has-line-data" data-line-start="10" data-line-end="11">Ambil daftar provinsi dan data provinsi berdasarkan
+    id.</p>
+  <pre><code class="has-line-data" data-line-start="13" data-line-end="16" class="language-shell">https://area.nyandev.id/provinsi.json
+https://area.nyandev.id/provinsi/1.json
+</code></pre>
+  <p class="has-line-data" data-line-start="17" data-line-end="18">Contoh Response</p>
+  <pre><code class="has-line-data" data-line-start="20" data-line-end="34" class="language-json">[
+  {
+    "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+    "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"Aceh"</span></span>,
+    "<span class="hljs-attribute">hash</span>": <span class="hljs-value"><span class="hljs-string">"03b632315ee5bee654b60a6bd902a249"</span>
+  </span>},
+  {
+    "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">2</span></span>,
+    "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"Sumatra Utara"</span></span>,
+    "<span class="hljs-attribute">hash</span>": <span class="hljs-value"><span class="hljs-string">"6fe97b358b528edc477ba63d50b652af"</span>
+  </span>},
+  ...
+]
+</code></pre>
+  <h3 class="code-line" data-line-start=35 data-line-end=36><a id="Kabupaten_35"></a>Kabupaten</h3>
+  <p class="has-line-data" data-line-start="36" data-line-end="37">Ambil daftar kabupaten atau ibukota pada id provinsi
+    tertentu</p>
+  <pre><code class="has-line-data" data-line-start="39" data-line-end="44" class="language-shell">https://area.nyandev.id/provinsi/{ID_PROVINSI}/kabupaten.json
+
+https://area.nyandev.id/provinsi/1/kabupaten.json
+https://area.nyandev.id/provinsi/1/ibukota.json
+</code></pre>
+  <p class="has-line-data" data-line-start="45" data-line-end="46">Contoh Response</p>
+  <pre><code class="has-line-data" data-line-start="48" data-line-end="68" class="language-json">[
+  {
+    "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+    "<span class="hljs-attribute">pid</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+    "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"Kabupaten Aceh Barat"</span></span>,
+    "<span class="hljs-attribute">ibukota</span>": <span class="hljs-value"><span class="hljs-string">"Meulaboh"</span></span>,
+    "<span class="hljs-attribute">bsni</span>": <span class="hljs-value"><span class="hljs-string">"MBO"</span></span>,
+    "<span class="hljs-attribute">hash</span>": <span class="hljs-value"><span class="hljs-string">"55c736929de7af1ca48c9439bd122cec"</span>
+  </span>},
+  {
+    "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">2</span></span>,
+    "<span class="hljs-attribute">pid</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+    "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"Kabupaten Aceh Barat Daya"</span></span>,
+    "<span class="hljs-attribute">ibukota</span>": <span class="hljs-value"><span class="hljs-string">"Blangpidie"</span></span>,
+    "<span class="hljs-attribute">bsni</span>": <span class="hljs-value"><span class="hljs-string">"BPD"</span></span>,
+    "<span class="hljs-attribute">hash</span>": <span class="hljs-value"><span class="hljs-string">"a49b5afb6317f99be873c4f4ad6d178d"</span>
+  </span>},
+  ...
+]
+</code></pre>
+  <h3 class="code-line" data-line-start=69 data-line-end=70><a id="Kecamatan_69"></a>Kecamatan</h3>
+  <p class="has-line-data" data-line-start="70" data-line-end="71">Ambil daftar kecamatan berdasarkan id kabupaten.</p>
+  <pre><code class="has-line-data" data-line-start="73" data-line-end="77" class="language-shell">https://area.nyandev.id/provinsi/kabupaten/{ID_KABUPATEN}/kecamatan.json
+
+https://area.nyandev.id/provinsi/kabupaten/1/kecamatan.json
+</code></pre>
+  <p class="has-line-data" data-line-start="78" data-line-end="79">Contoh Response</p>
+  <pre><code class="has-line-data" data-line-start="81" data-line-end="97" class="language-json">[
+  {
+    "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+    "<span class="hljs-attribute">kabid</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+    "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"Arongan Lambalek"</span></span>,
+    "<span class="hljs-attribute">hash</span>": <span class="hljs-value"><span class="hljs-string">"55c736929de7af1ca48c9439bd122cec"</span>
+  </span>},
+  {
+    "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">2</span></span>,
+    "<span class="hljs-attribute">kabid</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+    "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"Bubon"</span></span>,
+    "<span class="hljs-attribute">hash</span>": <span class="hljs-value"><span class="hljs-string">"a49b5afb6317f99be873c4f4ad6d178d"</span>
+  </span>},
+  ...
+]
+</code></pre>
+  <h3 class="code-line" data-line-start=98 data-line-end=99><a id="Kelurahan_98"></a>Kelurahan</h3>
+  <p class="has-line-data" data-line-start="99" data-line-end="100">Ambil daftar kelurahan berdasarkan id kecamatan.</p>
+  <pre><code class="has-line-data" data-line-start="102" data-line-end="106" class="language-shell">https://area.nyandev.id/provinsi/kabupaten/kecamatan/{ID_KECAMATAN}/kelurahan.json
+
+https://area.nyandev.id/provinsi/kabupaten/kecamatan/1/kelurahan.json
+</code></pre>
+  <p class="has-line-data" data-line-start="107" data-line-end="108">Contoh Response</p>
+  <pre><code class="has-line-data" data-line-start="110" data-line-end="126" class="language-json">[
+  {
+    "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+    "<span class="hljs-attribute">kecid</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+    "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"Alue Bagok"</span></span>,
+    "<span class="hljs-attribute">hash</span>": <span class="hljs-value"><span class="hljs-string">"4300e5fa2eaf0525f0d70f7439ace806"</span>
+  </span>},
+  {
+    "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">2</span></span>,
+    "<span class="hljs-attribute">kecid</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+    "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"Alue Batee"</span></span>,
+    "<span class="hljs-attribute">hash</span>": <span class="hljs-value"><span class="hljs-string">"cfb12720845177f1e7379fd331bda8be"</span>
+  </span>},
+  ...
+]
+</code></pre>
+  <h3 class="code-line" data-line-start=127 data-line-end=128><a id="Hash_127"></a>Hash</h3>
+  <p class="has-line-data" data-line-start="128" data-line-end="129">Berisi tiap data administratif wilayah dari
+    Provinsi-Kelurahan di pecah menjadi 1 json file.</p>
+  <pre><code class="has-line-data" data-line-start="131" data-line-end="135" class="language-shell">https://area.nyandev.id/find/{HASH}.json
+
+https://area.nyandev.id/find/4ec1a19f9625c3d0267c5be1acea30e1.json
+</code></pre>
+  <p class="has-line-data" data-line-start="136" data-line-end="137">Contoh Response</p>
+  <pre><code class="has-line-data" data-line-start="139" data-line-end="146" class="language-json">{
+  "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">3391</span></span>,
+  "<span class="hljs-attribute">kabid</span>": <span class="hljs-value"><span class="hljs-number">235</span></span>,
+  "<span class="hljs-attribute">name</span>": <span class="hljs-value"><span class="hljs-string">"Jombang"</span></span>,
+  "<span class="hljs-attribute">hash</span>": <span class="hljs-value"><span class="hljs-string">"4ec1a19f9625c3d0267c5be1acea30e1"</span>
+</span>}
+</code></pre>
+  <h2 class="code-line" data-line-start=147 data-line-end=148><a id="Performance_147"></a>Performance</h2>
+  <p class="has-line-data" data-line-start="148" data-line-end="149">Dengan menggunakan Cloudflare CDN diharapkan
+    latency yang didapat dibawah <code>200ms</code>.</p>
+  <p class="has-line-data" data-line-start="150" data-line-end="151"><img
+      src="https://telegra.ph/file/65e9357b831fda385a535.png" alt="Tools KeyCDN Performance Test"></p>
+  <h2 class="code-line" data-line-start=152 data-line-end=153><a id="Demo_152"></a>Demo</h2>
+  <ul>
+    <li class="has-line-data" data-line-start="154" data-line-end="156"><a
+        href="https://jsfiddle.net/4up5rs7w/43/">Select2 + jQuery + Bootstrap</a></li>
+  </ul>
+  <h2 class="code-line" data-line-start=156 data-line-end=157><a id="Development_156"></a>Development</h2>
+  <pre><code class="has-line-data" data-line-start="158" data-line-end="164" class="language-shell">git clone https://github.com/nyancodeid/wilayah.git
+
+npm install
+
+npm run build
+</code></pre>
+
+</body>
+
+</html>
