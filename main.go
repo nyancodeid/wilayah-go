@@ -76,28 +76,32 @@ func generateProvinsi(datas Provinsi) {
 	rateLog()
 }
 func generateKabupaten(datas Kabupaten, related Provinsi) {
-	masterKabupaten := gubrak.From(datas).Map(func(each KabupatenElement) map[string]interface{} {
-		return map[string]interface{}{
+	var masterKabupatenData []map[string]interface{}
+	var masterIbukotaData []map[string]interface{}
+
+	for i := range datas {
+		each := datas[i]
+
+		data := map[string]interface{}{
 			"id":      each.ID,
 			"pid":     each.ProvId,
 			"name":    each.KabKota,
 			"ibukota": each.Ibukota,
 			"bsni":    each.Bsni,
 		}
-	}).GroupBy(func(each map[string]interface{}) int64 {
-		return each["pid"].(int64)
-	}).Result().(map[int64][]map[string]interface{})
-
-	masterIbukota := gubrak.From(datas).Map(func(each KabupatenElement) map[string]interface{} {
-		return map[string]interface{}{
+		dataIbukota := map[string]interface{}{
 			"id":   each.ID,
 			"pid":  each.ProvId,
 			"name": each.Ibukota,
 			"bsni": each.Bsni,
 		}
-	}).GroupBy(func(each map[string]interface{}) int64 {
-		return each["pid"].(int64)
-	}).Result().(map[int64][]map[string]interface{})
+
+		masterKabupatenData = append(masterKabupatenData, data)
+		masterIbukotaData = append(masterIbukotaData, dataIbukota)
+	}
+
+	masterKabupaten := GroupBy(masterKabupatenData, "pid")
+	masterIbukota := GroupBy(masterIbukotaData, "pid")
 
 	// Looping create directory for kabupaten
 	for i := range datas {
@@ -128,15 +132,20 @@ func generateKabupaten(datas Kabupaten, related Provinsi) {
 	rateLog()
 }
 func generateKecamatan(datas Kecamatan, related Kabupaten) {
-	masterKecamatan := gubrak.From(datas).Map(func(each KecamatanElement) map[string]interface{} {
-		return map[string]interface{}{
+	var masterKecamatanData []map[string]interface{}
+
+	for i := range datas {
+		each := datas[i]
+
+		data := map[string]interface{}{
 			"id":    each.ID,
 			"kabid": each.KabkotId,
 			"name":  each.Kec,
 		}
-	}).GroupBy(func(each map[string]interface{}) int64 {
-		return each["kabid"].(int64)
-	}).Result().(map[int64][]map[string]interface{})
+		masterKecamatanData = append(masterKecamatanData, data)
+	}
+
+	masterKecamatan := GroupBy(masterKecamatanData, "kabid")
 
 	for i := range datas {
 		data := datas[i]
@@ -158,20 +167,26 @@ func generateKecamatan(datas Kecamatan, related Kabupaten) {
 	rateLog()
 }
 func generateKelurahan(provinsi Provinsi, kabupaten Kabupaten, kecamatan Kecamatan, datas Kelurahan) {
-	masterKelurahan := gubrak.From(datas).Map(func(each KelurahanElement) map[string]interface{} {
+	var masterKelurahanData []map[string]interface{}
 	var wgKel sync.WaitGroup
 	var wgKec sync.WaitGroup
+
+	for i := range datas {
+		each := datas[i]
 		hash := makeHash("kec_" + strconv.FormatInt(each.ID, 10))
 
-		return map[string]interface{}{
+		data := map[string]interface{}{
 			"id":    each.ID,
 			"kecid": each.KecId,
 			"name":  each.Kelurahan,
 			"hash":  hash,
 		}
-	}).GroupBy(func(each map[string]interface{}) int64 {
-		return each["kecid"].(int64)
-	}).Result().(map[int64][]map[string]interface{})
+
+		masterKelurahanData = append(masterKelurahanData, data)
+	}
+
+	masterKelurahan := GroupBy(masterKelurahanData, "kecid")
+
 	queueKel := make(chan WriteChanData, 1)
 	queueKec := make(chan WriteChanData, 1)
 
