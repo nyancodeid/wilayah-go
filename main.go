@@ -159,6 +159,8 @@ func generateKecamatan(datas Kecamatan, related Kabupaten) {
 }
 func generateKelurahan(provinsi Provinsi, kabupaten Kabupaten, kecamatan Kecamatan, datas Kelurahan) {
 	masterKelurahan := gubrak.From(datas).Map(func(each KelurahanElement) map[string]interface{} {
+	var wgKel sync.WaitGroup
+	var wgKec sync.WaitGroup
 		hash := makeHash("kec_" + strconv.FormatInt(each.ID, 10))
 
 		return map[string]interface{}{
@@ -170,61 +172,93 @@ func generateKelurahan(provinsi Provinsi, kabupaten Kabupaten, kecamatan Kecamat
 	}).GroupBy(func(each map[string]interface{}) int64 {
 		return each["kecid"].(int64)
 	}).Result().(map[int64][]map[string]interface{})
+	queueKel := make(chan WriteChanData, 1)
+	queueKec := make(chan WriteChanData, 1)
+
+	// Create our data and send it into the queue.
+	wgKel.Add(len(datas))
+	wgKec.Add(len(kecamatan))
 
 	for i := range datas {
+		var wilayah WilayahObject
+
 		data := datas[i]
 		hash := makeHash("kec_" + strconv.FormatInt(data.ID, 10))
 
-		jsonPathHash := fmt.Sprintf("./dist/find/%s.json",
-			hash)
+		wilayah.DataProvinsi = provinsi
+		wilayah.DataKabupaten = kabupaten
+		wilayah.DataKecamatan = kecamatan
+		wilayah.DataKelurahan = data
 
-		// Get related ID
-		_kecamatan := gubrak.From(kecamatan).Find(func(each KecamatanElement) bool {
-			return each.ID == data.KecId
-		}).Result().(KecamatanElement)
-		_kabupaten := gubrak.From(kabupaten).Find(func(each KabupatenElement) bool {
-			return each.ID == _kecamatan.KabkotId
-		}).Result().(KabupatenElement)
-		_provinsi := gubrak.From(provinsi).Find(func(each ProvinsiElement) bool {
-			return each.ID == _kabupaten.ProvId
-		}).Result().(ProvinsiElement)
+		go func(wilayah WilayahObject) {
+			// Get related ID
+			_provinsi, _kabupaten, _kecamatan, _ := _generateDataWilayah(wilayah)
 
-		jsonDataHash := map[string]interface{}{
-			"id":    data.ID,
-			"kecid": data.KecId,
-			"name":  data.Kelurahan,
-			"hash":  hash,
-			"related": map[string]interface{}{
-				"kecamatan": map[string]interface{}{
-					"id":   data.KecId,
-					"name": _kecamatan.Kec,
+			jsonDataHash := map[string]interface{}{
+				"id":    data.ID,
+				"kecid": data.KecId,
+				"name":  data.Kelurahan,
+				"hash":  hash,
+				"related": map[string]interface{}{
+					"kecamatan": map[string]interface{}{
+						"id":   data.KecId,
+						"name": _kecamatan.Kec,
+					},
+					"kabupaten": map[string]interface{}{
+						"id":      _kabupaten.ID,
+						"name":    _kabupaten.KabKota,
+						"ibukota": _kabupaten.Ibukota,
+					},
+					"provinsi": map[string]interface{}{
+						"id":   _provinsi.ID,
+						"name": _provinsi.Provinsi,
+					},
 				},
-				"kabupaten": map[string]interface{}{
-					"id":      _kabupaten.ID,
-					"name":    _kabupaten.KabKota,
-					"ibukota": _kabupaten.Ibukota,
-				},
-				"provinsi": map[string]interface{}{
-					"id":   _provinsi.ID,
-					"name": _provinsi.Provinsi,
-				},
-			},
-		}
+			}
 
-		jsonDataHashByte, _ := json.Marshal(jsonDataHash)
+			jsonDataHashByte, _ := json.Marshal(jsonDataHash)
 
-		go writeFile(jsonPathHash, jsonDataHashByte)
+			var chanData WriteChanData
+
+			chanData.Data = jsonDataHashByte
+			chanData.Path = fmt.Sprintf("./dist/find/%s.json", hash)
+
+			queueKel <- chanData
+		}(wilayah)
 	}
 	for i := range kecamatan {
-		data := kecamatan[i]
+		go func(data KecamatanElement) {
+			jsonPath := fmt.Sprintf("./dist/provinsi/kabupaten/kecamatan/%s/kelurahan.json",
+				strconv.FormatInt(data.ID, 10))
 
-		jsonPath := fmt.Sprintf("./dist/provinsi/kabupaten/kecamatan/%s/kelurahan.json",
-			strconv.FormatInt(data.ID, 10))
+			jsonDataByte, _ := json.Marshal(masterKelurahan[data.ID])
 
-		jsonDataByte, _ := json.Marshal(masterKelurahan[data.ID])
+			var chanData WriteChanData
 
-		go writeFile(jsonPath, jsonDataByte)
+			chanData.Path = jsonPath
+			chanData.Data = jsonDataByte
+
+			queueKec <- chanData
+		}(kecamatan[i])
 	}
+
+	go func() {
+		// defer wg.Done() <- Never gets called since the 100 `Done()` calls are made above, resulting in the `Wait()` to continue on before this is executed
+		for data := range queueKel {
+			go writeFile(data.Path, data.Data)
+			wgKel.Done() // ** move the `Done()` call here
+		}
+	}()
+	go func() {
+		// defer wg.Done() <- Never gets called since the 100 `Done()` calls are made above, resulting in the `Wait()` to continue on before this is executed
+		for data := range queueKec {
+			go writeFile(data.Path, data.Data)
+			wgKec.Done() // ** move the `Done()` call here
+		}
+	}()
+
+	wgKel.Wait()
+	wgKec.Wait()
 
 	rateLog()
 }
