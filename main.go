@@ -338,5 +338,5 @@ func GroupBy(datas []map[string]interface{}, key string) map[int64][]map[string]
 }
 
 func rateLog() {
-	fmt.Println("Writing operation: " + strconv.FormatInt(counter.Rate(), 10) + "s")
+	fmt.Println("Writing operation: " + strconv.FormatInt(counter.Rate(), 10) + " ops/s")
 }
