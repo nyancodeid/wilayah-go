@@ -6,8 +6,6 @@ import (
 	"os"
 	"strconv"
 	"time"
-
-	gubrak "github.com/novalagung/gubrak/v2"
 )
 
 func main() {
