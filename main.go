@@ -298,6 +298,45 @@ func generateWilayah(provinsi Provinsi, kabupaten Kabupaten, kecamatan Kecamatan
 	rateLog()
 }
 
+func _generateDataWilayah(data WilayahObject) (ProvinsiElement, KabupatenElement, KecamatanElement, KelurahanElement) {
+	// Get related ID
+	var _kecamatan KecamatanElement
+	var _kabupaten KabupatenElement
+	var _provinsi ProvinsiElement
+
+	for i := range data.DataKecamatan {
+		if data.DataKecamatan[i].ID == data.DataKelurahan.KecId {
+			_kecamatan = data.DataKecamatan[i]
+			break
+		}
+	}
+	for i := range data.DataKabupaten {
+		if data.DataKabupaten[i].ID == _kecamatan.KabkotId {
+			_kabupaten = data.DataKabupaten[i]
+			break
+		}
+	}
+	for i := range data.DataProvinsi {
+		if data.DataProvinsi[i].ID == _kabupaten.ProvId {
+			_provinsi = data.DataProvinsi[i]
+			break
+		}
+	}
+
+	return _provinsi, _kabupaten, _kecamatan, data.DataKelurahan
+}
+func GroupBy(datas []map[string]interface{}, key string) map[int64][]map[string]interface{} {
+	var results = make(map[int64][]map[string]interface{})
+
+	for i := range datas {
+		KeyItem := datas[i][key].(int64)
+
+		results[KeyItem] = append(results[KeyItem], datas[i])
+	}
+
+	return results
+}
+
 func rateLog() {
 	fmt.Println("Writing operation: " + strconv.FormatInt(counter.Rate(), 10) + "s")
 }
