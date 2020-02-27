@@ -36,6 +36,7 @@ func main() {
 	generateKabupaten(kabupaten, provinsi)
 	generateKecamatan(kecamatan, kabupaten)
 	generateKelurahan(provinsi, kabupaten, kecamatan, kelurahan)
+	generateWilayah(provinsi, kabupaten, kecamatan, kelurahan)
 }
 
 func elapsed(what string) func() {
@@ -223,6 +224,75 @@ func generateKelurahan(provinsi Provinsi, kabupaten Kabupaten, kecamatan Kecamat
 		jsonDataByte, _ := json.Marshal(masterKelurahan[data.ID])
 
 		go writeFile(jsonPath, jsonDataByte)
+	}
+
+	rateLog()
+}
+
+func generateWilayah(provinsi Provinsi, kabupaten Kabupaten, kecamatan Kecamatan, kelurahan Kelurahan) {
+	var dataWilayah ArrayObject
+	var wg sync.WaitGroup
+
+	queue := make(chan Object, 1)
+
+	// Create our data and send it into the queue.
+	wg.Add(len(kelurahan))
+
+	for i := range kelurahan {
+		data := kelurahan[i]
+		var wilayah WilayahObject
+
+		wilayah.DataProvinsi = provinsi
+		wilayah.DataKabupaten = kabupaten
+		wilayah.DataKecamatan = kecamatan
+		wilayah.DataKelurahan = data
+
+		go func(data WilayahObject) {
+			hash := makeHash("kec_" + strconv.FormatInt(data.DataKelurahan.ID, 10))
+			_provinsi, _kabupaten, _kecamatan, _kelurahan := _generateDataWilayah(data)
+
+			wilayah := fmt.Sprintf("%s, %s, %s, %s", _kelurahan.Kelurahan, _kecamatan.Kec, _kabupaten.KabKota, _provinsi.Provinsi)
+
+			jsonData := Object{
+				"id":   _kelurahan.ID,
+				"name": wilayah,
+				"hash": hash,
+				"related": map[string]interface{}{
+					"kecamatan": map[string]interface{}{
+						"id":   _kelurahan.KecId,
+						"name": _kecamatan.Kec,
+					},
+					"kabupaten": map[string]interface{}{
+						"id":      _kabupaten.ID,
+						"name":    _kabupaten.KabKota,
+						"ibukota": _kabupaten.Ibukota,
+					},
+					"provinsi": map[string]interface{}{
+						"id":   _provinsi.ID,
+						"name": _provinsi.Provinsi,
+					},
+				},
+			}
+
+			queue <- jsonData
+		}(wilayah)
+	}
+
+	go func() {
+		// defer wg.Done() <- Never gets called since the 100 `Done()` calls are made above, resulting in the `Wait()` to continue on before this is executed
+		for data := range queue {
+			dataWilayah = append(dataWilayah, data)
+			wg.Done() // ** move the `Done()` call here
+		}
+	}()
+
+	wg.Wait()
+
+	jsonDataByte, err := json.Marshal(dataWilayah)
+	if err != nil {
+		log.Fatalln(err)
+	} else {
+		writeFile("./dist/wilayah.json", jsonDataByte)
 	}
 
 	rateLog()
