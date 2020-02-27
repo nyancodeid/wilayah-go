@@ -8,6 +8,19 @@ import (
 	"time"
 )
 
+type ArrayObject []map[string]interface{}
+type Object map[string]interface{}
+type WilayahObject struct {
+	DataProvinsi  Provinsi
+	DataKabupaten Kabupaten
+	DataKecamatan Kecamatan
+	DataKelurahan KelurahanElement
+}
+type WriteChanData struct {
+	Data []byte
+	Path string
+}
+
 func main() {
 	defer elapsed("running")()
 	os.RemoveAll("./dist")
